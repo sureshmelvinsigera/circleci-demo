@@ -1,25 +1,16 @@
 version: 2.1
 
 jobs:
-  build:
-    working_directory: circleci-demo/src
-    docker:
-      - image: "circleci/python:3.6.4"
+  build_and_test: # this can be any name you choose
+    executor: python/default # use the default executor defined within the orb
     steps:
-      - checkout
-      - run: python3 main.py
-  test:
-    working_directory: circleci-demo/test
-    docker:
-      - image: "circleci/python:3.6.4"
-    steps:
-      - checkout
-      - run: python3 -m unittest test.test_main -v
-
-workflows:
-  build_and_test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - checkout # checkout source code
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: python -m pytest
+      - persist_to_workspace:
+          root: ~/circleci-demo
+          paths:
+            - .
